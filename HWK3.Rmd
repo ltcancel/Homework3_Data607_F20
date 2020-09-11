@@ -19,18 +19,35 @@ knitr::opts_chunk$set(echo = TRUE)
 Code that identifies majors that contain either "DATA" or "STATISTICS" from [https://fivethirtyeight.com/features/the-economic-guide-to-picking-a-college-major/](Five Thirty Eight)
 
 ```{r}
+#install.packages("xml2")
 library(rvest)
+library(xml2)
+library(tidyverse)
+library(stringr)
 
-site <- "https://fivethirtyeight.com/features/the-economic-guide-to-picking-a-college-major/"
+#site <- "https://fivethirtyeight.com/features/the-economic-guide-to-picking-a-college-major/"
+site <- "https://projects.fivethirtyeight.com/mid-levels/college-majors/index.html?v=3"
 
+#majors_list <- read_html(site)
 majors_list <- read_html(site)
 
 # pull all majors
-majors_list %>%
-  html_nodes(xpath = '//*[@id="example"]/tbody/tr[1]/td[1]') %>%
-  as.character()
+majors_df <- majors_list %>%
+  html_nodes(xpath = '//*[@id="example"]') %>%
+  html_table(fill = TRUE)
 
-html_table(major_section)
+#convert list to data frame
+majors_df <- as.data.frame(majors_df)
+mj <- majors_df$MAJOR
+
+mj[1]
+length(mj)
+#look for majors with statistics in name
+str_view(mj, regex("statistics", ignore_case = TRUE), match = TRUE)
+
+#look for majors with data in the name
+str_view(mj, regex("data", ignore_case = TRUE), match = TRUE)
+
 ```
 
 ## Question 2

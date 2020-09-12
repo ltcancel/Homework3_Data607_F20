@@ -16,87 +16,107 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Question 1
 
-Code that identifies majors that contain either "DATA" or "STATISTICS" from [https://fivethirtyeight.com/features/the-economic-guide-to-picking-a-college-major/](Five Thirty Eight). 
+Code that identifies majors that contain either "DATA" or "STATISTICS" from [Five Thirty Eight] (https://fivethirtyeight.com/features/the-economic-guide-to-picking-a-college-major/). 
 
 ```{r warning=FALSE, message=FALSE}
-#install.packages("xml2")
 library(rvest)
 library(xml2)
 library(tidyverse)
-library(stringr)
 
+# Get URL of College Majors list
 site <- "https://projects.fivethirtyeight.com/mid-levels/college-majors/index.html?v=3"
-
 majors_list <- read_html(site)
 
-# pull all majors
+# Scrape all data from the website
 majors_df <- majors_list %>%
   html_nodes(xpath = '//*[@id="example"]') %>%
   html_table(fill = TRUE)
 
-#convert list to data frame and save majors column only to its own data fram
+# Scrapped data is in the form of a list. 
+# Convert list to data frame and save the majors column only to its own data frame
 majors_df <- as.data.frame(majors_df)
 mj <- majors_df$MAJOR
 
-#look for majors with statistics in name
-str_view(mj, regex("statistics", ignore_case = TRUE), match = TRUE)
+# look for majors with statistics in name
+major.stats <- str_view(mj, regex("statistics", ignore_case = TRUE), match = TRUE)
 
-#look for majors with data in the name
-str_view(mj, regex("data", ignore_case = TRUE), match = TRUE)
+# look for majors with data in the name
+major.data <- str_view(mj, regex("data", ignore_case = TRUE), match = TRUE)
 
+# Display all majors with Statistics in the name
+major.stats
+
+# Display all majors with Data in the name
+major.data
 ```
 
 ## Question 2
 
 Data transformation
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 library(RCurl)
 library(dplyr)
-#get fruit list from Github
+
+# get fruit list from Github
 x <- getURL("https://raw.githubusercontent.com/ltcancel/Homework3_Data607_F20/master/fruit.txt")
 fruit <- read.delim(text = x, header = FALSE, sep = '"')
 
+fruit
 
-#filter to only include columns with values
+```
+
+```{r}
+# filter to only include columns with values
 fruit.clean <- fruit %>%
   select(2,4,6,8)
 
+fruit.clean
 
-#loop through data frame
-rm(p)
+```
+
+```{r}
+# loop through data frame to create final string
 
 for (x in 1:nrow(fruit.clean)){
   for (y in 1:ncol(fruit.clean)){
     if (x == 1 && y == 1){
-      p <- c("c(",fruit.clean[x,y])
+      final.string <- c("c(",fruit.clean[x,y])
     }
     else if (x == nrow(fruit.clean) && y == ncol(fruit.clean)){
-      p <- paste0(p,")")
+      final.string <- paste0(final.string,")")
     }
     else{
-      p <- paste0(p,",",fruit.clean[x,y])
+      final.string <- paste0(final.string,",",fruit.clean[x,y])
     }
   }
 }
-p
 
+# Display new string
+final.string
 ```
-
 
 ## Question 3
 
 Describe, in words, what these expressions will match:
 
 * (.)\1\1
+  + This will find the same letter repeating 3 times in a row. Example: bbb
+
 
 * "(.)(.)\\2\\1"
+  + This will find 2 letters grouped, then find the same letters grouped in reverse. Example: chhc
+  
 
 * (..)\1
+  + This will find 2 letters that repeat once. Example: Chch
+  
 
 * "(.).\\1.\\1"
-
+  +  This will find 1 letter that repeats 3 times but is not grouped together. Example: exexe
+  
 * "(.)(.)(.).*\\3\\2\\1"
+  + This will find 3 letters grouped, followed by any character, and then find the same 3 letter but grouped in reverse. Example: xyz1zyx
 
 
 ## Question 4
@@ -105,16 +125,16 @@ Construct regular expressions to match words that:
 
 Start and end with the same character.
 ```{r}
-
+str_view(c("dad","apple","eye"),"^(.).*\\1$")
 ```
 
 Contain a repeated pair of letters (e.g. "church" contains "ch" repeated twice.)
 ```{r}
-
+str_view(c("church","house","pressure"),"(..).*\\1", match = TRUE)
 ```
 
 Contain one letter repeated in at least three places (e.g. "eleven" contains three "e"s.)
 ```{r}
-
+str_view(c("eleven","six","between"),"(.).*\\1.*\\1")
 ```
 

@@ -18,7 +18,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Code that identifies majors that contain either "DATA" or "STATISTICS" from [https://fivethirtyeight.com/features/the-economic-guide-to-picking-a-college-major/](Five Thirty Eight). 
 
-```{r}
+```{r warning=FALSE, message=FALSE}
 #install.packages("xml2")
 library(rvest)
 library(xml2)
@@ -49,6 +49,40 @@ str_view(mj, regex("data", ignore_case = TRUE), match = TRUE)
 ## Question 2
 
 Data transformation
+
+```{r}
+library(RCurl)
+library(dplyr)
+#get fruit list from Github
+x <- getURL("https://raw.githubusercontent.com/ltcancel/Homework3_Data607_F20/master/fruit.txt")
+fruit <- read.delim(text = x, header = FALSE, sep = '"')
+
+
+#filter to only include columns with values
+fruit.clean <- fruit %>%
+  select(2,4,6,8)
+
+
+#loop through data frame
+rm(p)
+
+for (x in 1:nrow(fruit.clean)){
+  for (y in 1:ncol(fruit.clean)){
+    if (x == 1 && y == 1){
+      p <- c("c(",fruit.clean[x,y])
+    }
+    else if (x == nrow(fruit.clean) && y == ncol(fruit.clean)){
+      p <- paste0(p,")")
+    }
+    else{
+      p <- paste0(p,",",fruit.clean[x,y])
+    }
+  }
+}
+p
+
+```
+
 
 ## Question 3
 
